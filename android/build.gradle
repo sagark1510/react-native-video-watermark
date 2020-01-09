@@ -57,6 +57,7 @@ android {
 
 repositories {
     // ref: https://www.baeldung.com/maven-local-repository
+    maven { url 'https://jitpack.io' }
     mavenLocal()
     maven {
         // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
@@ -73,6 +74,7 @@ repositories {
 dependencies {
     //noinspection GradleDynamicVersion
     implementation 'com.facebook.react:react-native:+'  // From node_modules
+    implementation 'com.github.MasayukiSuda:Mp4Composer-android:v0.3.5'
 }
 
 def configureReactNativePom(def pom) {
