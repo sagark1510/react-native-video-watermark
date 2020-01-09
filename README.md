@@ -9,9 +9,11 @@
 `$ react-native link react-native-video-watermark`
 
 ## Usage
+
 ```javascript
 import VideoWatermark from 'react-native-video-watermark';
 
-// TODO: What to do with the module?
-VideoWatermark;
+VideoWatermark.convert(videoUri, imgUri, destinationUri => {
+    // use converted video here.
+});
 ```
