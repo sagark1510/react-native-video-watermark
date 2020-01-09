@@ -2,7 +2,7 @@
   "name": "react-native-video-watermark",
   "title": "React Native Video Watermark",
   "version": "1.0.0",
-  "description": "TODO",
+  "description": "use image as watermark over video",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -16,8 +16,8 @@
     "react-native"
   ],
   "author": {
-    "name": "Your Name",
-    "email": "yourname@email.com"
+    "name": "Sagar Khatri",
+    "email": "sagark1510@email.com"
   },
   "license": "MIT",
   "licenseFilename": "LICENSE",
