@@ -26,11 +26,19 @@ RCT_EXPORT_METHOD(convert:(NSString *)videoUri imageUri:(nonnull NSString *)imag
     [compositionAudioTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, videoAsset.duration) ofTrack:clipAudioTrack atTime:kCMTimeZero error:nil];
 
     [compositionVideoTrack setPreferredTransform:[[[videoAsset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0] preferredTransform]];
-
-    CGSize sizeOfVideo=[videoAsset naturalSize];
+    
+    CGSize sizeOfVideo = [[[videoAsset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0] naturalSize];
 
     //Image of watermark 
     UIImage *myImage=[UIImage imageWithContentsOfFile:imageUri];
+    
+    UIGraphicsBeginImageContext(sizeOfVideo);
+    [myImage drawInRect:CGRectMake(0, 0, sizeOfVideo.width, sizeOfVideo.height)];
+    UIImage *destImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    myImage = destImage;
+    
+    
     CALayer *layerCa = [CALayer layer];
     layerCa.contents = (id)myImage.CGImage;
     layerCa.frame = CGRectMake(0, 0, myImage.size.width, myImage.size.height);
