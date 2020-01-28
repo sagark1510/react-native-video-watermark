@@ -42,7 +42,7 @@ RCT_EXPORT_METHOD(convert:(NSString *)videoUri imageUri:(nonnull NSString *)imag
     
     CALayer *layerCa = [CALayer layer];
     layerCa.contents = (id)myImage.CGImage;
-    layerCa.frame = CGRectMake(0, 0, myImage.size.width, myImage.size.height);
+    layerCa.frame = CGRectMake(0, 0, sizeOfVideo.width, sizeOfVideo.height);
     layerCa.opacity = 1.0;
     
     CALayer *parentLayer=[CALayer layer];
