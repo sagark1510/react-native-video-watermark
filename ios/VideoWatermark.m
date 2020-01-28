@@ -63,6 +63,7 @@ RCT_EXPORT_METHOD(convert:(NSString *)videoUri imageUri:(nonnull NSString *)imag
     
     AVMutableVideoCompositionLayerInstruction* layerInstruction = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:videoTrack];
     
+    // https://stackoverflow.com/questions/44911802/video-rotated-after-applying-avvideocomposition/45058026
     BOOL  isAssetPortrait_  = NO;
     CGAffineTransform trackTransform = clipVideoTrack.preferredTransform;
     if(trackTransform.a == 0 && trackTransform.b == 1.0 && trackTransform.c == -1.0 && trackTransform.d == 0)  {
