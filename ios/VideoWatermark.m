@@ -72,10 +72,8 @@ RCT_EXPORT_METHOD(convert:(NSString *)videoUri imageUri:(nonnull NSString *)imag
     if(trackTransform.a == 0 && trackTransform.b == -1.0 && trackTransform.c == 1.0 && trackTransform.d == 0)  {
         isAssetPortrait_ = YES;
     }
-    CGFloat assetScaleToFitRatio = 320.0/clipVideoTrack.naturalSize.width;
     if(isAssetPortrait_){
-        assetScaleToFitRatio = 320.0/clipVideoTrack.naturalSize.height;
-        CGAffineTransform assetScaleFactor = CGAffineTransformMakeScale(assetScaleToFitRatio,assetScaleToFitRatio);
+        CGAffineTransform assetScaleFactor = CGAffineTransformMakeScale(1.0, 1.0);
         [layerInstruction setTransform:CGAffineTransformConcat(clipVideoTrack.preferredTransform, assetScaleFactor) atTime:kCMTimeZero];
     }
     
