@@ -2,7 +2,7 @@
 
 ## Getting started
 
-`$ npm install react-native-video-watermark --save`
+`$ npm install https://github.com/sagark1510/react-native-video-watermark#1.0.2
 
 ### Mostly automatic installation
 
