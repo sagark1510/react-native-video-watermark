@@ -10,31 +10,45 @@ RCT_EXPORT_METHOD(convert:(NSString *)videoUri imageUri:(nonnull NSString *)imag
     [self watermarkVideoWithImage:videoUri imageUri:imageUri callback:callback];
 }
 
+
 -(void)watermarkVideoWithImage:(NSString *)videoUri imageUri:(NSString *)imageUri callback:(RCTResponseSenderBlock)callback
 {
+
+
     
-    AVURLAsset* videoAsset = [[AVURLAsset alloc]initWithURL:[NSURL fileURLWithPath:videoUri] options:nil];
+    NSURL *url = [[NSURL alloc] initWithString:videoUri];
+
+    AVURLAsset* videoAsset = [[AVURLAsset alloc]initWithURL:url options:nil];
+
     AVMutableComposition* mixComposition = [AVMutableComposition composition];
     
     AVMutableCompositionTrack *compositionVideoTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeVideo preferredTrackID:kCMPersistentTrackID_Invalid];
     AVAssetTrack *clipVideoTrack = [[videoAsset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
-    AVMutableCompositionTrack *compositionAudioTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
-    AVAssetTrack *clipAudioTrack = [[videoAsset tracksWithMediaType:AVMediaTypeAudio] objectAtIndex:0];
-    //If you need audio as well add the Asset Track for audio here
+
     
     [compositionVideoTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, videoAsset.duration) ofTrack:clipVideoTrack atTime:kCMTimeZero error:nil];
-    [compositionAudioTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, videoAsset.duration) ofTrack:clipAudioTrack atTime:kCMTimeZero error:nil];
-    
+
     [compositionVideoTrack setPreferredTransform:[[[videoAsset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0] preferredTransform]];
         
     CGSize sizeOfVideo = CGSizeApplyAffineTransform(clipVideoTrack.naturalSize, clipVideoTrack.preferredTransform);
+
+
     sizeOfVideo.width = fabs(sizeOfVideo.width);
+    NSString *path = [[NSBundle mainBundle] pathForResource:imageUri ofType:@"png"];
     
-    //Image of watermark
-    UIImage *myImage=[UIImage imageWithContentsOfFile:imageUri];
+
+    
+    UIImage *myImage=[UIImage imageWithContentsOfFile:path];
     
     UIGraphicsBeginImageContext(sizeOfVideo);
-    [myImage drawInRect:CGRectMake(0, 0, sizeOfVideo.width, sizeOfVideo.height)];
+
+    if(sizeOfVideo.height < 1920.0){
+        [myImage drawInRect:CGRectMake(0, sizeOfVideo.height - myImage.size.height, myImage.size.width, myImage.size.height)];
+        
+    }else{
+        [myImage drawInRect:CGRectMake(0, sizeOfVideo.height - myImage.size.height*2, myImage.size.width*2, myImage.size.height*2)];
+    }
+    
     UIImage *destImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     myImage = destImage;
@@ -43,7 +57,7 @@ RCT_EXPORT_METHOD(convert:(NSString *)videoUri imageUri:(nonnull NSString *)imag
     CALayer *layerCa = [CALayer layer];
     layerCa.contents = (id)myImage.CGImage;
     layerCa.frame = CGRectMake(0, 0, sizeOfVideo.width, sizeOfVideo.height);
-    layerCa.opacity = 1.0;
+    layerCa.opacity = 0.7;
     
     CALayer *parentLayer=[CALayer layer];
     CALayer *videoLayer=[CALayer layer];
@@ -63,19 +77,17 @@ RCT_EXPORT_METHOD(convert:(NSString *)videoUri imageUri:(nonnull NSString *)imag
     
     AVMutableVideoCompositionLayerInstruction* layerInstruction = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:videoTrack];
     
-    // https://stackoverflow.com/questions/44911802/video-rotated-after-applying-avvideocomposition/45058026
-    BOOL  isAssetPortrait_  = NO;
-    CGAffineTransform trackTransform = clipVideoTrack.preferredTransform;
-    if(trackTransform.a == 0 && trackTransform.b == 1.0 && trackTransform.c == -1.0 && trackTransform.d == 0)  {
-        isAssetPortrait_ = YES;
-    }
-    if(trackTransform.a == 0 && trackTransform.b == -1.0 && trackTransform.c == 1.0 && trackTransform.d == 0)  {
-        isAssetPortrait_ = YES;
-    }
-    if(isAssetPortrait_){
-        CGAffineTransform assetScaleFactor = CGAffineTransformMakeScale(1.0, 1.0);
-        [layerInstruction setTransform:CGAffineTransformConcat(clipVideoTrack.preferredTransform, assetScaleFactor) atTime:kCMTimeZero];
-    }
+
+    CGAffineTransform transform = clipVideoTrack.preferredTransform;
+    CGRect rect = {{0, 0}, clipVideoTrack.naturalSize};
+    CGRect transformedRect = CGRectApplyAffineTransform(rect, transform);
+    transform.tx -= transformedRect.origin.x;
+    transform.ty -= transformedRect.origin.y;
+
+
+    CGAffineTransform assetScaleFactor = CGAffineTransformMakeScale(1.0, 1.0);
+    [layerInstruction setTransform:CGAffineTransformConcat(transform, assetScaleFactor) atTime:kCMTimeZero];
+    
     
     
     instruction.layerInstructions = [NSArray arrayWithObject:layerInstruction];
@@ -84,7 +96,7 @@ RCT_EXPORT_METHOD(convert:(NSString *)videoUri imageUri:(nonnull NSString *)imag
     NSString *documentsDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)objectAtIndex:0];
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"yyyy-MM-dd_HH-mm-ss"];
-    NSString *destinationPath = [documentsDirectory stringByAppendingFormat:@"/output_%@.mov", [dateFormatter stringFromDate:[NSDate date]]];
+    NSString *destinationPath = [documentsDirectory stringByAppendingFormat:@"/output_%@.mp4", [dateFormatter stringFromDate:[NSDate date]]];
     
     AVAssetExportSession *exportSession = [[AVAssetExportSession alloc] initWithAsset:mixComposition presetName:AVAssetExportPresetHighestQuality];
     exportSession.videoComposition=videoComposition;
