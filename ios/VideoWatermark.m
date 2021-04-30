@@ -42,12 +42,15 @@ RCT_EXPORT_METHOD(convert:(NSString *)videoUri imageUri:(nonnull NSString *)imag
     
     UIGraphicsBeginImageContext(sizeOfVideo);
 
-    if(sizeOfVideo.height < 1920.0){
-        [myImage drawInRect:CGRectMake(0, sizeOfVideo.height - myImage.size.height, myImage.size.width, myImage.size.height)];
+    CGFloat widthDiference = fabs(sizeOfVideo.width - myImage.size.width);
+    CGFloat heightDiference = fabs(sizeOfVideo.height - myImage.size.height);
+
+    CGFloat newWidthImage= myImage.size.width+ (widthDiference * 0.6);
+    CGFloat newHeightImage= myImage.size.height+ (widthDiference * 0.25);
+
+    [myImage drawInRect:CGRectMake(  (sizeOfVideo.width - newWidthImage) /2  , (sizeOfVideo.height - newHeightImage), newWidthImage, newHeightImage)];
         
-    }else{
-        [myImage drawInRect:CGRectMake(0, sizeOfVideo.height - myImage.size.height*2, myImage.size.width*2, myImage.size.height*2)];
-    }
+
     
     UIImage *destImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
